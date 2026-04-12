@@ -134,7 +134,7 @@ namespace Mango.Services.CouponAPI.Controllers
 
         }
 
-        [HttpDelete("DeleteCoupon")]
+        [HttpDelete("DeleteCoupon/{id}")]
         public async Task<ActionResult<ResponseDto>> DeleteCoupon(int id)
         {
             var coupon = await context.Coupons.FindAsync(id);
