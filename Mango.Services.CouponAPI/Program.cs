@@ -46,9 +46,7 @@ namespace Mango.Services.CouponAPI
                 if (dbContext.Database.GetPendingMigrations().Count() > 0)
                 {
                     dbContext.Database.Migrate();
-                }
-
-                    
+                }      
             }
 
         }
