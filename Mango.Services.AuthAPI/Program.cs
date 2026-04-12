@@ -21,7 +21,7 @@ namespace Mango.Services.AuthAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettins:JwtOptions"));
+            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("ApiSettings:JwtOptions"));
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
@@ -29,7 +29,7 @@ namespace Mango.Services.AuthAPI
 
             builder.Services.AddControllers();
             builder.Services.AddScoped<IAuthService, AuthService>();
-
+            builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGeneratorService>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
