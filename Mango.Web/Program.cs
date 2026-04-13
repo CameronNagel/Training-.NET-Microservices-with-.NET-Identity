@@ -1,6 +1,7 @@
 using Mango.Web.Interfaces;
 using Mango.Web.Service;
 using Mango.Web.Utility;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Mango.Web
 {
@@ -15,12 +16,21 @@ namespace Mango.Web
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddHttpClient();
             builder.Services.AddHttpClient<ICouponService, CouponService>();
+            
             SD.CouponAPIBase = builder.Configuration["ServiceUrls:CouponAPI"];
             SD.AuthAPIBase = builder.Configuration["ServiceUrls:AuthAPI"];
 
             builder.Services.AddScoped<IBaseService, BaseService>();
             builder.Services.AddScoped<ICouponService, CouponService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITokenProvider, TokenProviderService>();
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                    options.LoginPath = "/Auth/Login";
+                    options.AccessDeniedPath = "/Auth/AccessDenied";
+                });
 
             var app = builder.Build();
 
@@ -37,6 +47,7 @@ namespace Mango.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
