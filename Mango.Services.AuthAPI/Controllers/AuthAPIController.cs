@@ -19,7 +19,7 @@ namespace Mango.Services.AuthAPI.Controllers
         }
 
 
-        [HttpPost("register")]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register(RegistrationRequestDto model)
         {
             var errorMessage = await _authService.Register(model);
@@ -33,7 +33,7 @@ namespace Mango.Services.AuthAPI.Controllers
             return Ok(_response);
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginRequestDto model)
         {
             var loginResponse = await _authService.Login(model);
