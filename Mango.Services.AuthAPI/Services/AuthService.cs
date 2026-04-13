@@ -41,11 +41,17 @@ namespace Mango.Services.AuthAPI.Services
 
         public async Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto)
         {
-            var user = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
+            var user = _dbContext.ApplicationUsers
+        .FirstOrDefault(u => u.UserName.ToLower() == loginRequestDto.UserName.ToLower());
+
+            if (user == null)
+            {
+                return new LoginResponseDto() { User = null, Token = "" };
+            }
 
             bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
 
-            if (user == null || !isValid)
+            if (!isValid)
             {
                 return new LoginResponseDto() { User = null, Token = "" };
             }
