@@ -1,6 +1,7 @@
 ﻿using Mango.Services.ProductAPI.Data;
 using Mango.Services.ProductAPI.DTOs;
 using Mango.Services.ProductAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,13 @@ namespace Mango.Services.ProductAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductAPIController(AppDbContext context) : BaseAPIController
     {
         private readonly ResponseDto response = new();
 
         [HttpGet("GetAllProducts")]
+        [Authorize]
         public async Task<ActionResult<IReadOnlyList<ResponseDto>>> GetAllProducts()
         {
             try
@@ -33,18 +36,21 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpGet("GetProductById/{id}")]
+        [Authorize]
         public async Task<ActionResult<ResponseDto>> GetProductById(int id)
         {
             try
             {
-                var prouct = await context.Products.FindAsync(id);
+                var product = await context.Products.FindAsync(id);
 
-                if (prouct == null)
+                if (product == null)
                 {
                     response.IsSuccess = false;
                     response.Message = $"Product with ID {id} not found.";
                     return NotFound(response);
                 }
+                response.Result = product;
+                response.Message = $"Product with ID {id} retrieved successfully.";
             }
             catch (Exception ex)
             {
@@ -52,10 +58,11 @@ namespace Mango.Services.ProductAPI.Controllers
                 response.Message = $"Error retrieving product with ID {id}: {ex.Message}";
             }
 
-            return response;
+            return Ok(response);
         }
 
         [HttpGet("GetAllProductsByCategory/{categoryName}")]
+        [Authorize]
         public async Task<ActionResult<IReadOnlyList<ResponseDto>>> GetAllProductsByCategory(string categoryName)
         {
             try
@@ -74,6 +81,7 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpPost("CreateProduct")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> CreateProduct(Product product)
         {
             try
@@ -92,6 +100,7 @@ namespace Mango.Services.ProductAPI.Controllers
         }
 
         [HttpPut("UpdateProduct")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> UpdateProduct(int id, Product product)
         {
             if (id != product.ProductId)
@@ -124,10 +133,11 @@ namespace Mango.Services.ProductAPI.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, response);
                 }
             }
-            return response;
+            return Ok(response);
         }
 
         [HttpDelete("DeleteProduct/{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> DeleteProduct(int id)
         {
             var product = await context.Products.FindAsync(id);
@@ -149,7 +159,7 @@ namespace Mango.Services.ProductAPI.Controllers
                 response.Message = $"Error deleting product: {ex.Message}";
                 return StatusCode(StatusCodes.Status500InternalServerError, response);
             }
-            return response;
+            return Ok(response);
         }
     }
 }

@@ -1,5 +1,9 @@
 
+using Mango.Services.ProductAPI.Data;
+using Mango.Services.ProductAPI.Extentions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace Mango.Services.ProductAPI
 {
@@ -16,7 +20,34 @@ namespace Mango.Services.ProductAPI
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(option =>
+            {
+                option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Enter the Bearer Authorization string as follows: `Bearer [Generated-JWT-Token]`",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
+            });
+
+            builder.AddAppAuthentication();
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
@@ -29,12 +60,25 @@ namespace Mango.Services.ProductAPI
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
             app.MapControllers();
+            ApplyPendingMigrations();
 
             app.Run();
+
+            void ApplyPendingMigrations()
+            {
+                using var scope = app.Services.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                if (dbContext.Database.GetPendingMigrations().Count() > 0)
+                {
+                    dbContext.Database.Migrate();
+                }
+            }
         }
     }
 }
