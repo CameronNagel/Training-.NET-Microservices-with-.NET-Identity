@@ -9,7 +9,7 @@ namespace Mango.Services.ProductAPI.Data
         {
 
         }
-        public DbSet<Product> Coupons { get; set; }
+        public DbSet<Product> Products { get; set; }
 
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
