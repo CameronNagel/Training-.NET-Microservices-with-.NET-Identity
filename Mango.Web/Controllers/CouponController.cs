@@ -26,10 +26,10 @@ namespace Mango.Web.Controllers
             }
             else
             {
-                TempData["error"] = "ERROR: Coupon(s) could not be retrieved from the server.";
+                TempData["error"] = $"ERROR: Coupon(s) could not be retrieved from the server. -- {response?.Message}";
             }
 
-                return View(list);
+            return View(list);
         }
 
         public async Task<IActionResult> CouponCreate()

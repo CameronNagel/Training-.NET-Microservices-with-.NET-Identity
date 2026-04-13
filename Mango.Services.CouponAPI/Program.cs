@@ -1,6 +1,9 @@
 
+using System.Text;
 using Mango.Services.CouponAPI.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Mango.Services.CouponAPI
 {
@@ -19,6 +22,35 @@ namespace Mango.Services.CouponAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var secret = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
+            var issuer = builder.Configuration.GetValue<string>("ApiSettings:Issuer");
+            var audience = builder.Configuration.GetValue<string>("ApiSettings:Audience");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+
+            builder.Services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+                    ValidateIssuer = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = true,
+                    ValidAudience = audience,
+                };
+            });
+
+            builder.Services.AddAuthorization();
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -30,6 +62,7 @@ namespace Mango.Services.CouponAPI
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
