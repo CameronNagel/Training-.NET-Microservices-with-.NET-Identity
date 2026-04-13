@@ -17,6 +17,7 @@ namespace Mango.Services.CouponAPI.Controllers
         private readonly ResponseDto response = new();
 
         [HttpGet("GetAllCoupons")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<IReadOnlyList<ResponseDto>>> GetAllCoupons()
         {
             try
@@ -37,6 +38,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpGet("GetCouponById/{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> GetCouponById(int id)
         {
             try
@@ -80,6 +82,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpPost("CreateCoupon")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> CreateCoupon(Coupon coupon)
         {
             try
@@ -98,6 +101,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpPut("UpdateCoupon")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> UpdateCoupon(int id, Coupon coupon)
         {
             if (id != coupon.CouponId)
@@ -137,6 +141,7 @@ namespace Mango.Services.CouponAPI.Controllers
         }
 
         [HttpDelete("DeleteCoupon/{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ResponseDto>> DeleteCoupon(int id)
         {
             var coupon = await context.Coupons.FindAsync(id);

@@ -1,9 +1,11 @@
 
 using System.Text;
 using Mango.Services.CouponAPI.Data;
+using Mango.Services.CouponAPI.Extentions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace Mango.Services.CouponAPI
 {
@@ -20,33 +22,33 @@ namespace Mango.Services.CouponAPI
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            var secret = builder.Configuration.GetValue<string>("ApiSettings:SecretKey");
-            var issuer = builder.Configuration.GetValue<string>("ApiSettings:Issuer");
-            var audience = builder.Configuration.GetValue<string>("ApiSettings:Audience");
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
-
-            builder.Services.AddAuthentication(x =>
+            builder.Services.AddSwaggerGen(option =>
             {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+                option.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme, securityScheme: new OpenApiSecurityScheme
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-                    ValidateIssuer = true,
-                    ValidIssuer = issuer,
-                    ValidateAudience = true,
-                    ValidAudience = audience,
-                };
+                    Name = "Authorization",
+                    Description = "Enter the Bearer Authorization string as follows: `Bearer [Generated-JWT-Token]`",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = JwtBearerDefaults.AuthenticationScheme
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
             });
+
+            builder.AddAppAuthentication();
 
             builder.Services.AddAuthorization();
 
