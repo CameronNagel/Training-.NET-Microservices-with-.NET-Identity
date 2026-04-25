@@ -70,10 +70,35 @@ namespace Mango.Web.Service
                     case HttpStatusCode.Forbidden:
                         return new ResponseDto { IsSuccess = false, Message = "Forbidden" };
                     default:
-                        var apiContent = apiResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        var apiContent = await apiResponse.Content.ReadAsStringAsync();
                         var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
-                        return apiResponseDto;
 
+                        if (apiResponseDto != null && !apiResponse.IsSuccessStatusCode)
+                        {
+                            /*apiResponseDto.IsSuccess = false;
+                            if (string.IsNullOrWhiteSpace(apiResponseDto.Message))
+                            {
+                                apiResponseDto.Message = string.IsNullOrWhiteSpace(apiContent) ? (apiResponse.ReasonPhrase ?? apiResponse.StatusCode.ToString()) : $"{apiResponse.StatusCode}: {apiContent}";
+
+                                apiResponseDto.Result = apiResponse.StatusCode + " - " + apiResponse.ReasonPhrase;
+                                
+
+                            }*/
+                        } 
+                        return apiResponseDto;
+                        /*case HttpStatusCode.NotFound:
+                            return new ResponseDto { IsSuccess = false, Message = "Not Found" };
+                        case HttpStatusCode.InternalServerError:
+                            return new ResponseDto { IsSuccess = false, Message = "Internal Server Error" };
+                        case HttpStatusCode.Unauthorized:
+                            return new ResponseDto { IsSuccess = false, Message = "Unauthorized" };
+                        case HttpStatusCode.Forbidden:
+                            return new ResponseDto { IsSuccess = false, Message = "Forbidden" };
+                        default:
+                            var apiContent = apiResponse.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                            var apiResponseDto = JsonConvert.DeserializeObject<ResponseDto>(apiContent);
+                            return apiResponseDto;*/
+                        
                 }
             }
             catch (Exception ex)

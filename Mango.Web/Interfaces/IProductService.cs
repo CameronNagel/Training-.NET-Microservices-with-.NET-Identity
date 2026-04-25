@@ -6,7 +6,7 @@ namespace Mango.Web.Interfaces
     {
         Task<ResponseDto?> GetAllProductsAsync();
         Task<ResponseDto?> GetProductByIdAsync(int id);
-        Task<ResponseDto?> GetProductByCategoryAsync(int id, string categoryName);
+        Task<ResponseDto?> GetProductByCategoryAsync(string categoryName);
         Task<ResponseDto?> CreateProductAsync(ProductDto productDto);
         Task<ResponseDto?> UpdateProductAsync(ProductDto productDto);
         Task<ResponseDto?> DeleteProductAsync(int id);
